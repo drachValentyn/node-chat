@@ -1,12 +1,29 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var bodyParser = require('body-parser');
+const path = require('path');
+const express = require('express');
+const app = express();
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
 
-var room = require('./routes/room');
-var chat = require('./routes/chat');
-var app = express();
+if (process.env.NODE_ENV !== 'production'){
+  require('dotenv').config();
+}
+
+const mongoose = require('mongoose');
+const bluebird = require('bluebird');
+
+mongoose.Promise = bluebird;
+mongoose.connect('mongodb://localhost/node-chat', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  promiseLibrary: bluebird,
+})
+  .then(() => console.log('connection to db succesful'))
+  .catch(() => console.error(err));
+
+const room = require('./routes/room');
+const chat = require('./routes/chat');
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -18,7 +35,7 @@ app.use('/api/chat', chat);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });

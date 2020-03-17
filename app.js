@@ -4,10 +4,13 @@ const app = express();
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const cors = require('cors');
+const engines = require('consolidate');
 
 if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
 }
+
 
 const mongoose = require('mongoose');
 const bluebird = require('bluebird');
@@ -25,6 +28,7 @@ mongoose.connect('mongodb://localhost/node-chat', {
 const room = require('./routes/room');
 const chat = require('./routes/chat');
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({'extended':'false'}));
@@ -50,5 +54,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.engine('html', engines.mustache);
+app.set('view engine', 'html');
 
 module.exports = app;

@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
 const mongoose = require('mongoose');
 const Chat = require('../models/Chat');
 
@@ -46,6 +49,20 @@ router.delete('/:id', function (req, res, next) {
     if (err) return next(err);
     res.json(post);
   })
+});
+
+//socket io
+server.listen(5005)
+
+io.on('connection', function(socket) {
+  console.log('User connected');
+  socket.on('disconnect', function() {
+    console.log('User disconnected');
+  });
+  socket.on('save-message', function(data) {
+    console.log(data);
+    io.emit('new-message', { message: data });
+  });
 });
 
 module.exports = router;

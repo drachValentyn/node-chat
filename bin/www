@@ -6,20 +6,27 @@
 
 const app = require('../app');
 const debug = require('debug')('node-chat-app:server');
-const http = require('http');
+const https = require('https');
+const fs = require('fs');
+
+const httpsOptions = {
+  key: fs.readFileSync('./security/key.pem', 'utf-8'),
+  cert: fs.readFileSync('./security/server.crt', 'utf-8'),
+}
+
 
 /**
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3056');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-const server = http.createServer(app);
+const server = https.createServer(httpsOptions, app);
 
 /**
  * Listen on provided port, on all network interfaces.

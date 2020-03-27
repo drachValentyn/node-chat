@@ -11,7 +11,6 @@ if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
 }
 
-
 const mongoose = require('mongoose');
 const bluebird = require('bluebird');
 
@@ -25,8 +24,8 @@ mongoose.connect('mongodb://localhost/node-chat', {
   .then(() => console.log('connection to db succesful'))
   .catch(() => console.error(err));
 
-const room = require('./routes/room');
-const chat = require('./routes/chat');
+const room = require('./controllers/routes/room');
+const chat = require('./controllers/routes/chat');
 
 app.use(cors());
 app.use(logger('dev'));
@@ -48,7 +47,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = req.app.get('env') === 'dev' ? err : {};
 
   // render the error page
   res.status(err.status || 500);

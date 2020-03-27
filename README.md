@@ -20,5 +20,18 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Structure of project
+
+- src (Vue application)
+- config (Env vars, passport)
+- controllers
+    - models (MongoDB)
+        - Chat.js
+        - Room.js
+    - routes
+        - chat.js
+        - room.js
+- public (static files)
+    - index.html
+- app.js (main file)
+    

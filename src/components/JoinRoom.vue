@@ -1,6 +1,7 @@
 <template>
-  <b-row>
-    <b-col cols="6">
+  <b-container>
+    <b-row>
+      <b-col cols="6">
       <h2>
         Join Room
         <b-link href="/">(Room List)</b-link>
@@ -18,7 +19,9 @@
         <b-button type="submit" variant="primary">Join</b-button>
       </b-form>
     </b-col>
-  </b-row>
+    </b-row>
+  </b-container>
+
 </template>
 
 <script>
@@ -31,7 +34,7 @@ export default {
   data () {
     return {
       chat: {},
-      socket: io('http://localhost:5000')
+      socket: io('http://localhost:5005')
     }
   },
   methods: {

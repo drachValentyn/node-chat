@@ -51,8 +51,8 @@ router.delete('/:id', function (req, res, next) {
   })
 });
 
-//socket io
-server.listen(5005)
+//socket io port
+server.listen(5005);
 
 io.on('connection', function(socket) {
   console.log('User connected');

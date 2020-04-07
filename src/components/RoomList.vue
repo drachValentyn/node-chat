@@ -1,16 +1,20 @@
 <template>
   <b-container>
     <b-row>
-      <b-col cols="12">
+      <b-col cols="12" class="list-block">
 
         <h2>
           Room List
-          <b-link href="/add-room">(Add Room)</b-link>
         </h2>
+
+        <div class="pb-4">
+          <b-button variant="outline-primary" to="/add-room" class="mr-3">Add Room</b-button>
+          <b-button variant="outline-warning" @click="logout()">Logout</b-button>
+        </div>
 
         <b-table striped hover :items="rooms" :fields="fields">
           <template v-slot:cell(actions)="row">
-            <b-button size="sm" @click.stop="join(row.item._id)">Join</b-button>
+            <b-button size="sm" variant="outline-success" @click.stop="join(row.item._id)">Join</b-button>
           </template>
         </b-table>
 
@@ -48,28 +52,48 @@ export default {
         }
       ],
       rooms: [],
-      errors: []
+      errors: [],
+      auth: false
     }
   },
   created () {
+    axios.defaults.headers.common.Authorization = localStorage.getItem(
+      'jwtToken'
+    )
     axios.get('/api/room')
       .then(response => {
-        console.log(response)
         this.rooms = response.data
       })
       .catch(e => {
         this.errors.push(e)
+        if (e.response.status === 401) {
+          this.auth = true
+        }
       })
   },
   methods: {
     join (id) {
-      console.log(id)
       this.$router.push({
         name: 'JoinRoom',
         params: { id }
+      })
+    },
+    logout () {
+      localStorage.removeItem('jwtToken')
+      this.$router.push({
+        name: 'Login'
       })
     }
   }
 }
 
 </script>
+
+<style lang="scss">
+  .list-block{
+    padding-top: 5%;
+    h2{
+      padding-bottom: 2%;
+    }
+  }
+</style>

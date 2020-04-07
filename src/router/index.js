@@ -4,6 +4,8 @@ import RoomList from '@/components/RoomList'
 import AddRoom from '@/components/AddRoom'
 import JoinRoom from '@/components/JoinRoom'
 import ChatRoom from '@/components/ChatRoom'
+import Login from '@/components/Auth/Login'
+import Register from '@/components/Auth/Register'
 
 Vue.use(VueRouter)
 
@@ -27,6 +29,16 @@ const routes = [
     path: '/chat-room/:id/:nickname',
     name: 'ChatRoom',
     component: ChatRoom
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
   }
 ]
 

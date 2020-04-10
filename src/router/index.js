@@ -6,6 +6,7 @@ import JoinRoom from '@/components/JoinRoom'
 import ChatRoom from '@/components/ChatRoom'
 import Login from '@/components/Auth/Login'
 import Register from '@/components/Auth/Register'
+import OneToOne from '@/components/OneToOne'
 
 Vue.use(VueRouter)
 
@@ -39,6 +40,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/one-to-one-chat/:id',
+    name: 'OneToOneChat',
+    component: OneToOne
   }
 ]
 

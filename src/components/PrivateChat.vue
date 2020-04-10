@@ -111,8 +111,6 @@ export default {
   methods: {
     ...mapMutations(['clearData', 'newMessage', 'updateUsers']),
     goBack () {
-      console.log('router')
-      console.log(this.$router)
       this.$router.go(-1)
     },
     getChatData () {
@@ -132,7 +130,6 @@ export default {
       this.chat.nickname = this.currentUserName
       axios.post('/api/private-chat/', this.chat)
         .then(response => {
-          console.log(response.data)
           this.chats.push(response.data)
           this.$socket.emit('createMessage',
             {

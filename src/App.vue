@@ -42,7 +42,7 @@ export default {
     const getUser = JSON.parse(localStorage.getItem('newUser'))
     if (getUser !== null) {
       this.$store.state.user = getUser
-      this.userName = this.$store.state.user.userName
+      this.userName = this.$store.state.user.username
     }
     this.auth = localStorage.getItem('jwtToken')
   }

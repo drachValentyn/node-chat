@@ -24,7 +24,7 @@
 
 <script>
 
-import { mapGetters } from 'vuex'
+// import { mapGetters } from 'vuex'
 
 export default {
   data () {
@@ -33,9 +33,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      user: 'user'
-    })
+    // ...mapGetters({
+    //   userIn: 'userIn'
+    // })
   },
   created () {
     this.auth = localStorage.getItem('jwtToken')

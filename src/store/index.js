@@ -5,16 +5,29 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    user: {},
+    messages: [],
+    users: []
   },
   getters: {
-    user: state => {
-      return state.user
+    userIn: state => {
+      return state.userIn
     }
   },
   mutations: {
-  },
-  actions: {
-  },
-  modules: {
+    setUser (state, user) {
+      state.user = user
+    },
+    clearData (state) {
+      state.user = {}
+      state.messages = []
+      state.users = []
+    },
+    SOCKET_newMessage (state, message) {
+      state.messages.push(message)
+    },
+    SOCKET_updateUsers (state, users) {
+      state.users = users
+    }
   }
 })

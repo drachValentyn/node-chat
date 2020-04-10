@@ -47,7 +47,7 @@
               type="file"
               name="file"
               class="image-input"
-              @change="updateUploadButton($event)">
+              @change="updateUploadButton($event), insertImage()">
 
             <p class="text-center"
                v-if="loading">
@@ -57,7 +57,8 @@
 
           </b-col>
           <b-col cols='2'>
-            <b-button type='submit' variant='outline-success'>Join</b-button>
+<!--            :disabled="!chat.nickname"-->
+            <b-button type='submit'  variant='outline-success'>Join</b-button>
           </b-col>
 
         </b-row>
@@ -89,7 +90,8 @@ export default {
       errors: [],
       file: '',
       loadingText: '',
-      loading: false
+      loading: false,
+      photo: ''
     }
   },
   created () {
@@ -108,14 +110,11 @@ export default {
       const fileName = e.target.value.split('\\').pop()
       if (fileName) {
         this.loadingText = fileName
-        console.log(fileName)
         this.loading = true
       }
     },
 
-    onSubmit (event) {
-      event.preventDefault()
-
+    insertImage () {
       axios.defaults.headers.post['Content-Type'] = 'multipart/form-data'
       this.file = this.$refs.uploadInput.files[0]
       const formData = new FormData()
@@ -126,17 +125,23 @@ export default {
         }
       })
         .then(response => {
-          console.log(response)
+          this.photo = response.data
           this.$refs.uploadInput.value = ''
         })
         .catch(e => {
           this.errors.push(e)
         })
+    },
 
+    onSubmit (event) {
+      event.preventDefault()
       const user = {
         name: this.chat.nickname,
-        room: this.$route.params.id
+        room: this.$route.params.id,
+        photo: this.photo
       }
+
+      this.chat.room = this.$route.params.id
       axios.post('/api/chat', this.chat)
         .then(response => {
           this.$socket.emit('userJoined', user, data => {

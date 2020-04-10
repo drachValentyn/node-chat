@@ -8,6 +8,7 @@ const router = express.Router();
 const User = require("../models/User");
 
 router.post('/', function (req, res) {
+  let result = []
   User.find({}, (err, docs) => {
     // mongoose.disconnect();
 
@@ -19,12 +20,18 @@ router.post('/', function (req, res) {
       return console.error('error', err);
     }
 
-    res.status(200).send(docs);
+    docs.forEach((item) => {
+      if(req.body.username !== item.username) {
+        result.push(item);
+      }
+    })
+
+    res.status(200).send(result);
   })
 });
 
 router.post('/:id', function (req, res) {
-  const user = User.findOne({_id: req.params.id});
+  const user = User.findOne({_id: req.params.userId});
 
   res.status(200).send(user);
 });

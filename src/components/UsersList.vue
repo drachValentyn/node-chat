@@ -9,7 +9,7 @@
         <div>
             <b-list-group horizontal>
               <b-list-group-item  v-for="item in users" v-bind:key="item.name" class="mb-4">
-                <b-button pill variant="outline-secondary" @click="goToChat(item._id)">
+                <b-button pill variant="outline-secondary" @click="goToChat(item._id, item.username)">
                 {{item.username}}
                 </b-button>
               </b-list-group-item>
@@ -31,29 +31,64 @@ export default {
     }
   },
   created () {
-    this.getAllUsers()
     this.currentUser = this.$store.state.user
+    this.getAllUsers()
   },
   methods: {
     goBack () {
       this.$router.go(-1)
     },
     getAllUsers () {
-      axios.post('/api/users', this.$route.params.id)
+      axios.post('/api/users', { username: this.currentUser.username })
         .then(response => {
-          this.users = []
-          response.data.forEach((item) => {
-            if (item._id !== this.currentUser.userId) {
-              this.users.push(item)
-            }
+          this.users = response.data
+        })
+        .catch(e => {
+          this.errors.push(e)
+        })
+    },
+    createRoom (id, userName) {
+      axios.post('/api/room', {
+        id: id,
+        room_name: userName,
+        current_user_id: this.currentUser.username,
+        another_user_id: userName,
+        room_type: 'private'
+      })
+        .then(response => {
+          this.$router.push({
+            path: `/one-to-one-chat/${response.name}`,
+            params: { interlocutorId: id }
           })
         })
         .catch(e => {
           this.errors.push(e)
         })
     },
-    goToChat (id) {
-      this.$router.push({ path: `/one-to-one-chat/${id}`, params: { interlocutorId: id } })
+    goToChat (id, userName) {
+      const user = {
+        name: userName,
+        room: id
+      }
+      axios.get('/api/room', {
+        id: id
+      })
+        .then(response => {
+          this.$socket.emit('userJoined', user, data => {
+            if (typeof data === 'string') {
+              console.error(data)
+            } else {
+              this.$router.push({
+                path: `/one-to-one-chat/${userName}`
+                // id:
+              })
+            }
+          })
+        })
+        .catch(e => {
+          this.createRoom(id, userName)
+          this.errors.push(e)
+        })
     }
   }
 }

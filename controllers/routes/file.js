@@ -47,7 +47,7 @@ router.post('/', passport.authenticate('jwt', { session: false}),
           console.log(err);
         }else{
           let image = new Image();
-          image.image = req.file.originalname;
+          image.image = req.file.filename;
           image.user = req.query.user;
           image.save(()=>{
             if (err) return next(err);

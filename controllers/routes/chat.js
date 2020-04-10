@@ -39,7 +39,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), function (req, r
 /* GET SINGLE CHAT BY ID */
 
 router.get('/:id', function (req, res, next) {
-  console.log(req)
+  //console.log(req)
   Chat.findById(req.params.name, function (err, post) {
     if (err) return next(err);
     res.json(post);
@@ -84,7 +84,7 @@ router.delete('/:id', function (req, res, next) {
 //socket io port
 server.listen(5005);
 
-const m = (name, text, id) => ({ name, text, id })
+const m = (nickname, message, time) => ({ nickname, message, time})
 
 io.on('connection', socket => {
 
@@ -99,24 +99,27 @@ io.on('connection', socket => {
     users.add({
       id: socket.id,
       name: data.name,
-      room: data.room
+      room: data.room,
+      photo: data.photo
     })
 
     cb({ userId: socket.id })
     io.to(data.room).emit('updateUsers', users.getByRoom(data.room))
-    socket.emit('newMessage', m('', `Welcome ${data.name}.`))
+    socket.emit('newMessage', m('admin', `Welcome ${data.name}.`))
     socket.broadcast
       .to(data.room)
-      .emit('newMessage', m('', `User ${data.name} logged in.`))
+      .emit('newMessage', m('admin', `${data.name} logged in.`))
   })
 
   socket.on('createMessage', (data, cb) => {
-    if (!data.text) {
-      return cb('Текст не может быть пустым')
+    if (!data.userOb.message) {
+      return cb('Message can\'t be blank')
     }
+
     const user = users.get(data.id)
+
     if (user) {
-      io.to(user.room).emit('newMessage', m(user.name, data.text, data.id))
+      io.to(user.room).emit('newMessage', m(user.name, data.userOb.message, data.userOb.created_date))
     }
     cb()
   })
@@ -127,7 +130,7 @@ io.on('connection', socket => {
       io.to(user.room).emit('updateUsers', users.getByRoom(user.room))
       io.to(user.room).emit(
         'newMessage',
-        m(' ', `User ${user.name} logged out.`)
+        m('admin', `${user.name} logged out.`)
       )
     }
     cb()
@@ -139,18 +142,16 @@ io.on('connection', socket => {
       io.to(user.room).emit('updateUsers', users.getByRoom(user.room))
       io.to(user.room).emit(
         'newMessage',
-        m('admin', `User ${user.name} logged out.`)
+        m('admin', `${user.name} logged out.`)
       )
     }
   })
 
   socket.on('typing', (data) => {
-    console.log('start')
     socket.broadcast.emit('typing', (data));
   });
 
   socket.on('stopTyping', () => {
-    console.log('stop')
     socket.broadcast.emit('stopTyping');
   });
 })

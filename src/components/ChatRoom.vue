@@ -23,6 +23,7 @@
 
           <b-col cols="8" >
             <b-list-group class="panel-body" v-chat-scroll>
+
               <b-list-group-item v-for="(item, index) in chats" :key="index" class="chat">
 
                 <!--Your message-->
@@ -56,30 +57,65 @@
 
               </b-list-group-item>
 
-              <div class="center clearfix" v-if="messages">
+              <div class="center clearfix">
                 <b-list-group-item v-for="(m, index) in messages" :key="index" class="chat chat-mess">
 
-                  <div class="left clearfix" >
-                    <div class="chat-body-message clearfix">
-                      <div class="header">
-                        <strong class="primary-font">{{ m.name }}</strong>
+                  <!--Your message-->
+
+                  <div class="left clearfix" v-if="m.nickname === nickname">
+
+                    <div v-for="u in users" :key="u.id">
+                      <div v-if="u.name === m.nickname">
+                        <b-img left :src="require('../../uploads/' + u.photo)" rounded="circle" width="55" height="55" alt="img" class="m-1" />
                       </div>
-                      <p>{{ m.text }}</p>
+                    </div>
+
+                    <div class="chat-body clearfix">
+                      <div class="header">
+                        <strong class="primary-font">{{ m.nickname }}</strong> <small class="pull-right text-muted">
+                        <span class="glyphicon glyphicon-time"/>{{ m.time | moment }}</small>
+                      </div>
+                      <p>{{ m.message }}</p>
+                    </div>
+                  </div>
+
+                  <!--System message-->
+
+                  <div class="left clearfix" v-else-if="m.nickname === 'admin'">
+                    <div class="chat-body-message clearfix">
+                      <p>{{ m.message }}</p>
+                    </div>
+                  </div>
+
+                  <!--Other message-->
+
+                  <div class="right clearfix" v-else>
+                    <div v-for="u in users" :key="u.id">
+                      <div v-if="u.name === m.nickname">
+                        <b-img right :src="require('../../uploads/' + u.photo)" rounded="circle" width="55" height="55" alt="img" class="m-1" />
+                      </div>
+                    </div>
+                    <div class="chat-body clearfix">
+                      <div class="header">
+                        <strong class="primary-font">{{ m.nickname }}</strong>
+                        <small class="pull-right text-muted">
+                          <span class="glyphicon glyphicon-time"/>
+                          {{ m.time | moment }}
+                        </small>
+                      </div>
+                      <p>{{ m.message }}</p>
                     </div>
                   </div>
 
                 </b-list-group-item>
               </div>
-
-              <!--System message-->
-
             </b-list-group>
 
             <small v-if="typing" class="typing">{{typing}} is typing</small>
 
             <b-form @submit="onSubmit" class="chat-form mt-4">
               <b-input-group prepend="Message">
-                <b-form-input id="message" v-model="chat.message"/>
+                <b-form-input id="message" v-model="messages.message"/>
                 <b-input-group-append>
                   <b-btn type="submit" variant="outline-success">Send</b-btn>
                 </b-input-group-append>
@@ -103,7 +139,7 @@
 <script>
 
 import Vue from 'vue' // eslint-disable-line no-unused-vars
-// import * as io from 'socket.io-client'
+import * as io from 'socket.io-client'
 import VueChatScroll from 'vue-chat-scroll' // eslint-disable-line no-unused-vars
 import axios from 'axios'
 import moment from 'moment'
@@ -119,15 +155,14 @@ export default {
       nickname: this.$route.params.nickname,
       chat: {},
       typing: false,
-      text: ''
-      // socket: io('http://localhost:5005')
+      socketIo: io('http://localhost:5005')
     }
   },
   created () {
     axios.defaults.headers.common.Authorization = localStorage.getItem(
       'jwtToken'
     )
-    axios.get('/api/chat/', this.$route.params.name)
+    axios.get('/api/chat/', this.$route.params.id)
       .then(response => {
         this.chats = response.data
       })
@@ -135,53 +170,52 @@ export default {
         this.errors.push(e)
       })
 
-    this.$socket.on('typing', function (data) {
+    this.socketIo.on('typing', function (data) {
       this.typing = data
     }.bind(this))
 
-    this.$socket.on('stopTyping', function () {
-      console.log('stop')
+    this.socketIo.on('stopTyping', function () {
       this.typing = false
     }.bind(this))
   },
   watch: {
-    'chat.message': function (value) {
-      value ? this.$socket.emit('typing', this.nickname) : this.$socket.emit('stopTyping')
+    'messages.message': function (value) {
+      value ? this.socketIo.emit('typing', this.nickname) : this.socketIo.emit('stopTyping')
     }
   },
   computed: mapState(['user', 'users', 'messages']),
   methods: {
     ...mapMutations(['clearData', 'newMessage', 'updateUsers']),
+
     logout () {
       this.$socket.emit('save-message',
         {
-          room: this.chat.room,
-          nickname: this.chat.nickname,
-          created_date: moment
+          room: this.messages.room,
+          nickname: this.messages.nickname
         })
       this.$socket.emit('userLeft', this.user.id, () => {
         this.clearData()
       })
       this.$router.push('/')
     },
+
     onSubmit (event) {
       event.preventDefault()
       this.chat.room = this.$route.params.id
       this.chat.nickname = this.$route.params.nickname
-      console.log(this.chat.message)
+
       axios.post('/api/chat/', this.chat)
         .then(response => {
-          console.log(response.data)
           this.$socket.emit('createMessage',
             {
-              text: this.chat.message,
+              userOb: response.data,
               id: this.$store.state.user.id
             },
             data => {
               if (typeof data === 'string') {
                 console.error(data)
               } else {
-                this.text = ''
+                this.chat.message = ''
               }
             })
         })

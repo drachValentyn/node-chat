@@ -5,19 +5,19 @@
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Compiles and hot-reloads for client
 ```
-npm run serve
+npm run dev
+```
+
+### Compiles and reloads for server
+```
+npm run server
 ```
 
 ### Compiles and minifies for production
 ```
 npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
 ```
 
 ### Structure of project

@@ -2,7 +2,7 @@ const mongoose = require('mongoose'),
   Schema = mongoose.Schema;
 
 const ChatSchema = new mongoose.Schema({
-  room: String,
+  room: {type: Schema.Types.ObjectID, ref: 'Room'},
   nickname: String,
   message: String,
   created_date: { type: Date, default: Date.now },

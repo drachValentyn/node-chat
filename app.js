@@ -14,6 +14,8 @@ if (process.env.NODE_ENV !== 'production'){
 const mongoose = require('mongoose');
 const bluebird = require('bluebird');
 
+require('./scripts/create-default-user')(mongoose);
+
 mongoose.Promise = bluebird;
 mongoose.connect('mongodb://localhost/node-chat', {
   useNewUrlParser: true,
@@ -27,6 +29,7 @@ mongoose.connect('mongodb://localhost/node-chat', {
 const room = require('./controllers/routes/room');
 const chat = require('./controllers/routes/chat');
 const auth = require('./controllers/routes/auth');
+const users = require('./controllers/routes/users');
 
 app.use(cors());
 app.use(logger('dev'));
@@ -37,6 +40,7 @@ app.use('/rooms', express.static(path.join(__dirname, 'dist')));
 app.use('/api/room', room);
 app.use('/api/chat', chat);
 app.use('/api/auth', auth);
+app.use('/api/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

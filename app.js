@@ -31,6 +31,7 @@ const chat = require('./controllers/routes/chat');
 const auth = require('./controllers/routes/auth');
 const users = require('./controllers/routes/users');
 const upload = require('./controllers/routes/file');
+const privateChat = require('./controllers/routes/private_chat');
 
 app.use(cors());
 app.use(logger('dev'));
@@ -43,6 +44,7 @@ app.use('/api/room', room);
 app.use('/api/chat', chat);
 app.use('/api/auth', auth);
 app.use('/api/users', users);
+app.use('/api/private-chat', privateChat);
 app.use('/uploads', upload);
 
 

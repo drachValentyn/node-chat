@@ -10,6 +10,12 @@
         <b-nav-item to="/login">Login</b-nav-item>
         <b-nav-item to="/register">Register</b-nav-item>
       </b-navbar-nav>
+
+      <b-navbar-nav v-if="userName" class="ml-auto">
+        <b-nav-item right>
+            <em>{{userName}}</em>
+        </b-nav-item>
+      </b-navbar-nav>
     </b-navbar>
 
     <router-view/>
@@ -22,7 +28,9 @@
 
 export default {
   data () {
-    return {}
+    return {
+      userName: null
+    }
   },
   computed: {
     // ...mapGetters({
@@ -34,6 +42,7 @@ export default {
     const getUser = JSON.parse(localStorage.getItem('newUser'))
     if (getUser !== null) {
       this.$store.state.user = getUser
+      this.userName = this.$store.state.user.username
     }
     this.auth = localStorage.getItem('jwtToken')
   }

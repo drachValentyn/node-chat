@@ -11,6 +11,18 @@ const UserSchema = new Schema({
   password: {
     type: String,
     required: true
+  },
+  privateChats: {
+    type: Array,
+    required: false
+  },
+  created_rooms: {
+    type: Array,
+    required: false
+  },
+  joined_rooms: {
+    type: Array,
+    required: false
   }
 });
 

@@ -2,6 +2,7 @@
   <b-container>
     <b-row>
       <b-col cols="12" class="list-block">
+        <UsersList/>
 
         <h2>
           Room List
@@ -31,6 +32,7 @@
 <script>
 
 import axios from 'axios'
+import UsersList from './UsersList'
 
 export default {
   name: 'BookList',
@@ -53,7 +55,8 @@ export default {
       ],
       rooms: [],
       errors: [],
-      auth: false
+      auth: false,
+      currentUser: null
     }
   },
   created () {
@@ -70,6 +73,7 @@ export default {
           this.auth = true
         }
       })
+    this.currentUser = this.$store.state.user
   },
   methods: {
     join (id) {
@@ -84,6 +88,9 @@ export default {
         name: 'Login'
       })
     }
+  },
+  components: {
+    UsersList
   }
 }
 

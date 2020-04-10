@@ -27,6 +27,7 @@ mongoose.connect('mongodb://localhost/node-chat', {
 const room = require('./controllers/routes/room');
 const chat = require('./controllers/routes/chat');
 const auth = require('./controllers/routes/auth');
+const upload = require('./controllers/routes/file');
 
 app.use(cors());
 app.use(logger('dev'));
@@ -34,9 +35,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({'extended':'false'}));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/rooms', express.static(path.join(__dirname, 'dist')));
+app.use(express.static('./uploads'));
 app.use('/api/room', room);
 app.use('/api/chat', chat);
 app.use('/api/auth', auth);
+app.use('/uploads', upload);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

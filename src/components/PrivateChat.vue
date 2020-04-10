@@ -73,11 +73,13 @@ import Vue from 'vue' // eslint-disable-line no-unused-vars
 import * as io from 'socket.io-client'
 import VueChatScroll from 'vue-chat-scroll' // eslint-disable-line no-unused-vars
 import axios from 'axios'
-// import moment from 'moment'
+import moment from 'moment'
+import { mapState, mapMutations } from 'vuex'
+
 Vue.use(VueChatScroll)
 
 export default {
-  name: 'OneToOneChat',
+  name: 'PrivateChat',
   data () {
     return {
       currentUser: null,
@@ -86,7 +88,7 @@ export default {
       errors: [],
       chat: {},
       typing: false,
-      socket: io('http://localhost:5005')
+      socket: io('http://localhost:5005/private-chats')
     }
   },
   created () {
@@ -94,30 +96,27 @@ export default {
       'jwtToken'
     )
     this.getChatData()
-    this.socket.on('job', function (data) {
-      console.log(data)
-    })
-    console.log('data')
-    this.socket.on('stopTyping', function () {
+    this.$socket.on('typing', function (data) {
+      this.typing = data
+    }.bind(this))
+
+    this.$socket.on('stopTyping', function () {
       console.log('stop')
       this.typing = false
     }.bind(this))
-
-    this.socket.on('new-message', function (data) {
-      if (data.message.room === this.$route.params.id) {
-        this.chats.push(data.message)
-      }
-    }.bind(this))
     this.currentUser = this.$store.state.user
+    this.currentUserName = this.$store.state.user.username
   },
+  computed: mapState(['user', 'users', 'messages']),
   methods: {
+    ...mapMutations(['clearData', 'newMessage', 'updateUsers']),
     goBack () {
       console.log('router')
       console.log(this.$router)
       this.$router.go(-1)
     },
     getChatData () {
-      axios.get('/api/chat/', this.$route.params.id)
+      axios.get('/api/private-chat/', this.$route.params.name)
         .then(response => {
           console.log('success')
           this.chats = response.data
@@ -131,20 +130,34 @@ export default {
       event.preventDefault()
       this.chat.room = this.$route.params.id
       this.chat.nickname = this.currentUserName
-      axios.post('/api/chat/', this.chat)
+      axios.post('/api/private-chat/', this.chat)
         .then(response => {
-          this.socket.emit('save-message', response.data)
-          this.chat.message = ''
+          console.log(response.data)
+          this.chats.push(response.data)
+          this.$socket.emit('createMessage',
+            {
+              text: this.chat.message,
+              id: this.$store.state.user.id
+            },
+            data => {
+              if (typeof data === 'string') {
+                console.error(data)
+              } else {
+                this.text = ''
+                this.chat.message = ''
+              }
+            })
         })
         .catch(e => {
           this.errors.push(e)
         })
-    },
-    createChat () {}
+    }
   },
-  watch: {
-    'chat.message': function (value) {
-      value ? this.socket.emit('typing', this.currentUserName) : this.socket.emit('stopTyping')
+  filters: {
+    moment (value) {
+      if (value) {
+        return moment(String(value)).format('MM/DD/YYYY hh:mm')
+      }
     }
   }
 }

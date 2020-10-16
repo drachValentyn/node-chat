@@ -203,6 +203,7 @@ export default {
       event.preventDefault()
       this.chat.room = this.$route.params.id
       this.chat.nickname = this.$route.params.nickname
+      this.chat.message = this.messages.message
 
       axios.post('/api/chat/', this.chat)
         .then(response => {

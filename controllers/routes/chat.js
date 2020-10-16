@@ -39,7 +39,6 @@ router.get('/', passport.authenticate('jwt', {session: false}), function (req, r
 /* GET SINGLE CHAT BY ID */
 
 router.get('/:id', function (req, res, next) {
-  //console.log(req)
   Chat.findById(req.params.name, function (err, post) {
     if (err) return next(err);
     res.json(post);
@@ -53,7 +52,6 @@ router.post('/', passport.authenticate('jwt', {session: false}), function (req, 
   let token = getToken(req.headers);
 
   if (token) {
-    console.log(req.body)
     Chat.create(req.body, function (err, post) {
       if (err) return next(err);
       res.json(post);
@@ -112,6 +110,7 @@ io.on('connection', socket => {
   })
 
   socket.on('createMessage', (data, cb) => {
+
     if (!data.userOb.message) {
       return cb('Message can\'t be blank')
     }
@@ -135,6 +134,7 @@ io.on('connection', socket => {
     }
     cb()
   })
+
 
   socket.on('disconnect', () => {
     const user = users.remove(socket.id)

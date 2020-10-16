@@ -7,14 +7,14 @@ services:
     ports:
       - "27017:27017"
   server:
-    build: server/
+    build: nodemon ./bin.www
     #command: node ./server.js #здесь можно перезаписать CMD из Dockerfile в /server
     ports:
       - "3000:3000"
     links:
       - mongo
   client:
-    build: client/
+    build: ./dist
     #command: http-server ./dist #здесь можно перезаписать CMD из Dockerfile в /client
     network_mode: host
     ports:

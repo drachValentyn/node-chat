@@ -44,7 +44,8 @@ router.post('/login', function (req, res) {
           if (isMatch && !err) {
             let userInfo = {
               loggedIn: true,
-              userId: user._id
+              userId: user._id,
+              username: user.username
             };
             // if user is found and password is right create a token
             let token = jwt.sign(user.toJSON(), settings.secret);
